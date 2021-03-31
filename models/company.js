@@ -46,10 +46,40 @@ class Company {
 
   /** Find all companies.
    *
+   * If query parameters passed in, adds them as SQL filters.
+   * companies/?maxEmployees=600 -> only gets companies with num_employees >= 600
+   * 
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
+  static async findAll(filters) {
+    let sqlToAdd = "WHERE 1 = 1"
+    let sqlValues = [];
+    let minEmployees, maxEmployees, nameLike;
+
+    if (filters !== undefined) {
+      minEmployees = filters.minEmployees;
+      maxEmployees = filters.maxEmployees;
+      nameLike = filters.nameLike;
+    }
+
+    if (minEmployees !== undefined) {
+      sqlValues.push(minEmployees);
+      sqlToAdd += ` AND num_employees >= $${sqlValues.length}`;
+    } 
+
+    if (maxEmployees !== undefined) {
+      sqlValues.push(maxEmployees);
+      sqlToAdd += ` AND num_employees <= $${sqlValues.length}`;
+    }
+    
+    if (nameLike !== undefined) {
+      nameLike = nameLike.toLowerCase();
+      sqlValues.push(`%${nameLike}%`);
+      sqlToAdd += ` AND LOWER(name) LIKE $${sqlValues.length}`;
+      console.log('sqlValues', sqlValues);
+    } 
+    
     const companiesRes = await db.query(
           `SELECT handle,
                   name,
@@ -57,7 +87,8 @@ class Company {
                   num_employees AS "numEmployees",
                   logo_url AS "logoUrl"
            FROM companies
-           ORDER BY name`);
+           ${sqlToAdd}
+           ORDER BY name`, sqlValues );
     return companiesRes.rows;
   }
 
@@ -86,6 +117,18 @@ class Company {
 
     return company;
   }
+
+  // static async filter() {
+  //   const companiesRes = await db.query(
+  //     `SELECT handle,
+  //             name,
+  //             description,
+  //             num_employees AS "numEmployees",
+  //             logo_url AS "logoUrl"
+  //      FROM companies
+  //      ORDER BY name`);
+  //   return companiesRes.rows;
+  // }
 
   /** Update company data with `data`.
    *
