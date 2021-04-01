@@ -61,7 +61,7 @@ describe("create", function () {
 describe("findAll", function () {
 
   test("works: no filter", async function () {
-    let companies = await Company.findAll();
+    let jobs = await Company.findAll();
     expect(companies).toEqual([
       {
         handle: "c1",

@@ -30,7 +30,7 @@ class Job {
           `INSERT INTO jobs
            (title, salary, equity, company_handle )
            VALUES ($1, $2, $3, $4)
-           RETURNING id, title, salary, equity, company_handle as companyHandle`,
+           RETURNING id, title, salary, equity, company_handle as "companyHandle"`,
         [
           title,
           salary,
@@ -39,7 +39,6 @@ class Job {
         ],
     );
     const job = result.rows[0];
-
     return job;
   }
 
@@ -58,7 +57,6 @@ class Job {
   static async update(id, data) {
     const { setCols, values } = sqlForPartialUpdate(data, {});
     const jobVarIdx = "$" + (values.length + 1);
-    console.log("dataTitle:",data.title);
 
     const querySql = `UPDATE jobs 
                       SET ${setCols} 
@@ -67,7 +65,7 @@ class Job {
                                 title, 
                                 salary, 
                                 equity,
-                                company_handle AS companyHandle`;
+                                company_handle AS "companyHandle"`;
     const result = await db.query(querySql, [...values, id]);
     const job = result.rows[0];
 
