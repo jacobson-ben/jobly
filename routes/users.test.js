@@ -23,7 +23,7 @@ afterAll(commonAfterAll);
 /************************************** POST /users */
 
 describe("POST /users", function () {
-  test("works for users: create non-admin", async function () {
+  test("works for admin: create non-admin", async function () {
     const resp = await request(app)
         .post("/users")
         .send({
@@ -47,9 +47,9 @@ describe("POST /users", function () {
     });
   });
 
-  //add post to users as user
 
-  test("works for users: create admin", async function () {
+
+  test("works for admin: create admin", async function () {
     const resp = await request(app)
         .post("/users")
         .send({
@@ -71,6 +71,21 @@ describe("POST /users", function () {
         isAdmin: true,
       }, token: expect.any(String),
     });
+  });
+
+ test("unauth for non admin", async function () {
+    const resp = await request(app)
+        .post("/users")
+        .send({
+          username: "u-new",
+          firstName: "First-new",
+          lastName: "Last-newL",
+          password: "password-new",
+          email: "new@email.com",
+          isAdmin: true,
+        })
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for anon", async function () {
@@ -116,7 +131,7 @@ describe("POST /users", function () {
 /************************************** GET /users */
 
 describe("GET /users", function () {
-  test("works for users", async function () {
+  test("works for admin", async function () {
     const resp = await request(app)
         .get("/users")
         .set("authorization", `Bearer ${u4Token}`);
@@ -154,7 +169,13 @@ describe("GET /users", function () {
     });
   });
 
-  //request without admin
+  test("doesn't work for logged in non admin", async function () {
+    const resp = await request(app)
+        .get("/users")
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
 
   test("unauth for anon", async function () {
     const resp = await request(app)
@@ -192,7 +213,21 @@ describe("GET /users/:username", function () {
     });
   });
 
-  //admin can get a user thats not itself
+  test("works for admin even if different user", async function () {
+    const resp = await request(app)
+        .get(`/users/u1`)
+        .set("authorization", `Bearer ${u4Token}`);
+    expect(resp.body).toEqual({
+      user: {
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        email: "user1@user.com",
+        isAdmin: false,
+      },
+    });
+  });
+
 
   test("unauth for anon", async function () {
     const resp = await request(app)
@@ -289,7 +324,13 @@ describe("DELETE /users/:username", function () {
     expect(resp.body).toEqual({ deleted: "u1" });
   });
 
-  //test delete as non admin
+
+  test("doesn't work for non admin", async function () {
+    const resp = await request(app)
+        .delete(`/users/u3`)
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.status).toEqual(401);
+  });
 
   test("unauth for anon", async function () {
     const resp = await request(app)
