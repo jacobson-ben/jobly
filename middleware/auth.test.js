@@ -61,7 +61,7 @@ describe("ensureLoggedIn", function () {
   test("works", function () {
     expect.assertions(1);
     const req = {};
-    const res = { locals: { user: { username: "test", is_admin: false } } };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
     const next = function (err) {
       expect(err).toBeFalsy();
     };
@@ -85,7 +85,7 @@ describe("ensureAdmin", function () {
   test("works", function () {
     expect.assertions(1);
     const req = {};
-    const res = { locals: { user: { username: "test", is_admin: true } } };
+    const res = { locals: { user: { username: "test", isAdmin: true } } };
     const next = function (err) {
       console.log("TESTING!!!!!!", err)
       expect(err).toBeFalsy();
@@ -108,7 +108,7 @@ describe("ensureAdminOrUser", function () {
   test("works if admin", function () {
     expect.assertions(1);
     const req = {};
-    const res = { locals: { user: { username: "test", is_admin: true } } };
+    const res = { locals: { user: { username: "test", isAdmin: true } } };
     const next = function (err) {
       expect(err).toBeFalsy();
     };
@@ -118,7 +118,7 @@ describe("ensureAdminOrUser", function () {
   test("works if correct user", function () {
     expect.assertions(1);
     const req = { params: { username: "test" } };
-    const res = { locals: { user: { username: "test", is_admin: false } } };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
     const next = function (err) {
       expect(err).toBeFalsy();
     };

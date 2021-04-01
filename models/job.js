@@ -143,14 +143,11 @@ class Job {
 
     if (hasEquity !== undefined) {
         
+      sqlValues.push(0);
         
         if (hasEquity === "true") {
-            hasEquity = 0;
-            sqlValues.push(hasEquity);
             sqlToAdd += ` AND equity > $${sqlValues.length}`;
         } else {
-            hasEquity = 0;
-            sqlValues.push(hasEquity);
             sqlToAdd += ` AND equity is NULL OR equity = $${sqlValues.length}`
         }
         
@@ -161,7 +158,6 @@ class Job {
       title = title.toLowerCase();
       sqlValues.push(`%${title}%`);
       sqlToAdd += ` AND LOWER(title) LIKE $${sqlValues.length}`;
-      console.log('sqlValues', sqlValues);
     } 
     
     const jobsRes = await db.query(

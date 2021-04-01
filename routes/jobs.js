@@ -31,7 +31,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
     }
   
     const job = await Job.create(req.body);
-    return res.status(201).json({ job });
+    return res.status(201).json( job );
   });
 
   /** GET /[id]  =>  { job }
@@ -43,7 +43,7 @@ router.post("/", ensureAdmin, async function (req, res, next) {
 
 router.get("/:id", async function (req, res, next) {
     const job = await Job.get(req.params.id);
-    return res.json({ job });
+    return res.json( job );
   });
 
   /** GET /  =>
@@ -84,7 +84,7 @@ router.patch("/:id", ensureAdmin, async function (req, res, next) {
     }
   
     const job = await Job.update(req.params.id, req.body);
-    return res.json({ job });
+    return res.json( job );
   });
 
 
