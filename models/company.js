@@ -118,17 +118,6 @@ class Company {
     return company;
   }
 
-  // static async filter() {
-  //   const companiesRes = await db.query(
-  //     `SELECT handle,
-  //             name,
-  //             description,
-  //             num_employees AS "numEmployees",
-  //             logo_url AS "logoUrl"
-  //      FROM companies
-  //      ORDER BY name`);
-  //   return companiesRes.rows;
-  // }
 
   /** Update company data with `data`.
    *
