@@ -11,6 +11,7 @@ const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
+const applicationSchema = require("../schemas/applicationState.json");
 
 const router = express.Router();
 
@@ -44,9 +45,18 @@ router.post("/", ensureAdmin, async function (req, res, next) {
  * Authorization required: Admin or logged in user
  **/
 
-router.post("/:username/jobs/:id", ensureAdminOrUser, async function(req, res, next) {
-  await User.apply(req.params.username, req.params.id)
-  return res.json({ applied: req.params.id })
+router.post("/:username/jobs/:id", ensureAdminOrUser, async function(req, res, next) { 
+  const validator = jsonschema.validate(req.body, applicationSchema);
+  if (!validator.valid) {
+    const errs = validator.errors.map(e => e.stack);
+    throw new BadRequestError(errs);
+  }
+
+  const state = req.body;
+  state.jobId = req.params.id;
+
+  await User.apply(req.params.username, req.params.id, req.body.state)
+  return res.status(201).json(state)
 })
 
 

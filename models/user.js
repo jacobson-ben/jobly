@@ -221,11 +221,11 @@ class User {
 
   /** Post a job appliation to the database; returns { applied: jobId } */
 
-  static async apply(username, id) {
+  static async apply(username, id, state) {
     let result = await db.query(`
-    INSERT into applications (username, job_id)
-    VALUES ($1, $2)
-    RETURNING username, job_id`, [username, id]
+      INSERT into applications (username, job_id, state)
+      VALUES ($1, $2, $3)
+      RETURNING username, job_id`, [username, id, state]
     )
   
     const application = result.rows[0]

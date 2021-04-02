@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
+const Job = require("./job.js");
 
 let jobIds = []
 
@@ -10,6 +11,7 @@ async function commonBeforeAll() {
   await db.query("DELETE FROM companies");
   await db.query("DELETE FROM users");
   await db.query("DELETE from jobs")
+  await db.query("DELETE from applications")
 
   await db.query(`
     INSERT INTO companies(handle, name, num_employees, description, logo_url)
@@ -25,20 +27,27 @@ async function commonBeforeAll() {
   let jobs = result.rows
   jobs.map(r => jobIds.push(r.id))
 
+  
   await db.query(`
-        INSERT INTO users(username,
-                          password,
-                          first_name,
-                          last_name,
-                          email)
-        VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com'),
-               ('u2', $2, 'U2F', 'U2L', 'u2@email.com')
-        RETURNING username`,
-      [
-        await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
-        await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
-      ]);
-}
+  INSERT INTO users(username,
+    password,
+    first_name,
+    last_name,
+    email)
+    VALUES ('u1', $1, 'U1F', 'U1L', 'u1@email.com'),
+    ('u2', $2, 'U2F', 'U2L', 'u2@email.com')
+    RETURNING username`,
+    [
+      await bcrypt.hash("password1", BCRYPT_WORK_FACTOR),
+      await bcrypt.hash("password2", BCRYPT_WORK_FACTOR),
+    ]);
+
+    await db.query(`
+      INSERT into applications(username, job_id, state)
+      VALUES ('u1', ${jobIds[0]}, 'applied'),
+             ('u2', ${jobIds[1]}, 'applied')`);
+
+  }
 
 async function commonBeforeEach() {
   await db.query("BEGIN");

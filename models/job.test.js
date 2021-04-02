@@ -101,6 +101,8 @@ describe("findAll", function () {
     ]);
   });
 
+  //test non existent prop find all min employees
+
   test("not working:name like filter", async function () {
     let jobs = await Job.findAll({ title:"Engineer"});
     expect(jobs).toEqual([
