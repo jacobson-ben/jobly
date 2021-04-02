@@ -102,7 +102,7 @@ class User {
    **/
 
   static async findAll() {
-    const result = await db.query(
+    const userResults = await db.query(
           `SELECT username,
                   first_name AS "firstName",
                   last_name AS "lastName",
@@ -111,8 +111,22 @@ class User {
            FROM users
            ORDER BY username`,
     );
+    let users = userResults.rows
 
-    return result.rows;
+    const applicationResults = await db.query(`
+            SELECT username, job_id 
+            FROM applications`)
+    let applications = applicationResults.rows
+
+    for(let user of users) {
+      user.jobs = []
+      for(let application of applications) {
+        if(user.username === application.username) {
+          user.jobs.push(application.job_id)
+        }
+      }
+    }
+    return users
   }
 
   /** Given a username, return data about user.
@@ -204,6 +218,20 @@ class User {
 
     if (!user) throw new NotFoundError(`No user: ${username}`);
   }
+
+  /** Post a job appliation to the database; returns { applied: jobId } */
+
+  static async apply(username, id) {
+    let result = await db.query(`
+    INSERT into applications (username, job_id)
+    VALUES ($1, $2)
+    RETURNING username, job_id`, [username, id]
+    )
+  
+    const application = result.rows[0]
+    if (!application) throw new NotFoundError(`Username or job not found`);
+  }
+
 }
 
 
